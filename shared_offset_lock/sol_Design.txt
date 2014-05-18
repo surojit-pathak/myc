@@ -1,0 +1,13 @@
+Problem -
+Design, implement, and test a shared offset lock that can be used by multiple threads within a process. A shared offset lock can lock a given range with a specified offset and length for shared or exclusive access. An exclusive lock can only be acquired by one thread, and cannot share any part of its range with a shared lock. Include test(s) that sufficiently exercise all the various conditions.
+
+Design Approach -
+To provide access synchronization, we have to use locks. A range is like a stream of resource. 
+ - Having lock per unit will be costly, but will depend on the number of elements in the range. So, there will be a mapping layer. So the entire range will be divided into a number of subranges, and there will be lock for each sub-range. Application may provide a propotional value for creating number of locks.
+ -  To implement shared and exclusive nature of the lock, I will use pthred read-write lock concept. 
+ - If a range spans across multiple sub-range, a series of corresponding lock will need to be acquired. Multiple threads taking many locks together has a threat of potential DEADLOCK.We assume, range as bounded stream of resource, effectively a large array - which should not be view as circular, i.e. strictly linear. As a given range for access is always contiguous, if we take the locks in linear order, the dependency of locks will be always linear. In terms of Resource Allocation Graph(RAG), we can assure that absence of any possible cycle, due to linearity, ensures no deadlock in this approach.
+
+Further Improvements -
+I would like to further enhance, improve the implementation with time measurement around the locking. i.e. to get a sense if an application is spending too much time in wait. We can have a threshold for such wait to alarm/feedback the application to further change the proportion of lock-to-resource ratio.
+
+

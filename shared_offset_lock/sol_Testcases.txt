@@ -1,0 +1,35 @@
+Test Approach -
+Question here is how to create a scenario of restricted access violation? In the critical section, a number of threads are made to write their pthread_id. While reading, the same, they run sanity check, that the data is not garbled. This process is repeated <count> number of times. Now, with a good number of threads, with such a parallel read-write access, we can increase the probability of hitting a access violation. If the range lock is implemented correct, those cases, will be protected. So, running, longer for so many combinations, we can gain enough confidence on unit-test coverage of the library implementation
+
+To do the same, we can run test_sol.sh, which produces output, if any test fails, it aborts the script.
+
+We can also generate a known combination of failure, by enabling -D option, i.e. defect mode. And then try the application with proper locks being taken.
+
+* Operating the same set of process, with -i option, helps us ensure that there is no memory leak etc. with help of Valgrind.
+* Running the process within, GDB, while accessing critical section, inspecting the lock data structure gives insight on the ownership of the lock, and how other threads are blocked on the same.
+
+The above approach mainly conforms the functionality of the library in full extent.
+
+We can also design test case for various boundary condition checks - ( The following are already handled in the code)
+
+1. Init
+   - Negative range param
+   - Lesser 'end' than 'start'
+   - Null pointer
+
+2. functionality
+   - 1 element
+   - Range with offset, i.e. a range 50-100
+
+3. Multi-instance
+   ./test_sol -t 16 -s 100 -e 20000 -c 10000 -i 5
+4. Single resource
+   ./test_sol -t 16 -s 100 -e 100 -c 10000
+5. Totally disjoint access
+6. Totally intersecting access
+   - The UT code, does a totally intersecting access, as that is the extreme scenario, where the access violation chances are high.
+7. Wrong combination of lock, unlock
+8. Wrong parameters of lock, unlock
+9. Checking failure on double locking - recursive locking.
+
+ 
